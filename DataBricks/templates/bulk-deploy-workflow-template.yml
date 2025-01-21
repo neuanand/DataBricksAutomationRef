@@ -1,0 +1,27 @@
+parameters:
+  - name: folderPath
+    type: string
+  - name: clusterId
+    type: string
+
+steps:
+
+- checkout: self
+- checkout: git://your_git_org_name/your_repo_name@refs/heads/main
+  displayName: 'Checkout repository for UAT'
+  condition: and(succeeded(), eq(variables['environment'], 'uat'))
+
+- script: |
+    databricks configure --token
+  displayName: 'configure databricks cli'
+  env:
+    DATABRICKS_HOST: $(databricksHost)
+    DATABRICKS_TOKEN: $(databricksToken)
+
+- task: PowerShell@2
+  displayName: 'ONE_TIME_JOB deployment'
+  inputs:
+    filePath: '$(Build.SourcesDirectory)/your_path/scripts/bulk-deploy-script.ps1'
+    arguments: |
+      -folderPath '$(Build.SourcesDirectory)/${{ parameters.folderPath }}' -clusterId ${{ parameters.clusterId }} -permissionFolder '$(Build.SourcesDirectory)/your_path/configuration/higerEnvPermission.json'
+  condition: and(succeeded(), eq('${{ parameters.folderPath }}', 'folderPath'))

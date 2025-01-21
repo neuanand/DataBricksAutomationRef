@@ -1,0 +1,36 @@
+parameters:
+  - name: environment
+    type: string
+
+steps:
+
+- checkout: self
+
+- checkout: name-of-your-data-branch
+  displayName: 'Checkout lmdata-databricks repository'
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)/path-of-folder
+    Contents: '**'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/targetfoldername'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)/targetfoldername'
+    ArtifactName: 'targetfoldername'
+
+- script: |
+    databricks configure --token
+    
+  displayName: 'configure databricks cli'
+  env:
+    DATABRICKS_HOST: $(databricksHost)
+    DATABRICKS_TOKEN: $(databricksToken)
+
+- script: |
+    databricks workspace import-dir $(Build.ArtifactStagingDirectory)/targetfoldername /Shared/targetfoldername --overwrite
+  env:
+    DATABRICKS_HOST: $(databricksHost)
+    DATABRICKS_TOKEN: $(databricksToken)
+  displayName: 'sync all files'

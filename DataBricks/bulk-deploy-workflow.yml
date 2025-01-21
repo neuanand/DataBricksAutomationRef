@@ -1,0 +1,26 @@
+trigger: none
+   
+parameters:
+  - name: environment
+    type: string
+
+pool: databricks-dev-agent-pool
+
+stages:
+  - stage: 'Name_your_stage'
+    displayName: 'Stage_Name'
+    #condition: and(succeeded(), or(eq('${{ env.name }}', 'dev'), eq(variables['Build.SourceBranchName'], 'main')))
+    variables:
+      - group: 'databricks-${{ parameters.environment }}-variables'
+    jobs:
+    - deployment: '${{ parameters.environment }}Deployment'
+      displayName: '${{ parameters.environment }} CDeployment'
+      environment: '${{ parameters.environment }}'
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+              - template: /DEVOPS/templates/bulk-deploy-workflow-template.yml
+                parameters:
+                  folderPath: 'your_folder_path'
+                  clusterId: $(clusterId)
