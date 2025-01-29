@@ -20,7 +20,7 @@ stages:
         runOnce:
           deploy:
             steps:
-              - template: /DEVOPS/templates/bulk-deploy-workflow-template.yml
+              - template: /DEVOPS/templates/bulk-deploy-template.yml
                 parameters:
                   folderPath: 'your_folder_path'
                   clusterId: $(clusterId)
