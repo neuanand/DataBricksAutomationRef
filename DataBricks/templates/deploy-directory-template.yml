@@ -13,7 +13,7 @@ steps:
 - task: PowerShell@2
   displayName: 'Run Dependency Script'
   inputs:
-    filePath: '$(Build.SourcesDirectory)/path-to-script/file1.ps1'
+    filePath: '$(Build.SourcesDirectory)/path-to-script/scripts/bulk-deploy-script.ps1'
     arguments: '-environment ${{ parameters.environment }}'
   condition: succeeded()
 
