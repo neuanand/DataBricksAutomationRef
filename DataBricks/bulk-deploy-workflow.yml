@@ -25,7 +25,6 @@ stages:
                   folderPath: 'your_folder_path'
                   clusterId: $(clusterId)
               - template: /DEVOPS/templates/deploy-directory-template.yml
-                  parameters:
-                    folderPath: 'your_folder_path'
-                    clusterId: $(clusterId) 
-            
+                parameters:
+                  folderPath: 'your_folder_path'
+                  clusterId: $(clusterId)
