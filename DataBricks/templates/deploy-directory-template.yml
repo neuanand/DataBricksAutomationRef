@@ -9,28 +9,45 @@ steps:
 - checkout: name-of-your-data-branch
   displayName: 'Checkout lmdata-databricks repository'
 
-- task: CopyFiles@2
+# **Run PowerShell Script (Dependency Check)**
+- task: PowerShell@2
+  displayName: 'Run Dependency Script'
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)/path-of-folder
+    filePath: '$(Build.SourcesDirectory)/path-to-script/file1.ps1'
+    arguments: '-environment ${{ parameters.environment }}'
+  condition: succeeded()
+
+# **Copy Files Only If PowerShell Script Succeeds**
+- task: CopyFiles@2
+  displayName: 'Copy Files'
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)/path-of-folder'
     Contents: '**'
     TargetFolder: '$(Build.ArtifactStagingDirectory)/targetfoldername'
+  condition: succeeded()
 
+# **Publish Files as Build Artifacts**
 - task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifacts'
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)/targetfoldername'
     ArtifactName: 'targetfoldername'
+  condition: succeeded()
 
+# **Configure Databricks CLI**
 - script: |
     databricks configure --token
-    
-  displayName: 'configure databricks cli'
+  displayName: 'Configure Databricks CLI'
   env:
     DATABRICKS_HOST: $(databricksHost)
     DATABRICKS_TOKEN: $(databricksToken)
+  condition: succeeded()
 
+# **Sync Files to Databricks**
 - script: |
     databricks workspace import-dir $(Build.ArtifactStagingDirectory)/targetfoldername /Shared/targetfoldername --overwrite
+  displayName: 'Sync Files to Databricks'
   env:
     DATABRICKS_HOST: $(databricksHost)
     DATABRICKS_TOKEN: $(databricksToken)
-  displayName: 'sync all files'
+  condition: succeeded()
